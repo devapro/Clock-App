@@ -1,57 +1,41 @@
 package pro.devapp.clock.viewModels
 
-import android.os.Handler
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.lifecycle.Transformations
+import pro.devapp.clock.R
+import pro.devapp.clock.fragments.ClockFragment
+import pro.devapp.clock.fragments.MirrorFragment
+import pro.devapp.clock.fragments.TimerFragment
 
 
-
-class MainViewModel : ViewModel() {
-    private val timeFormatter = SimpleDateFormat("HH:mm")
-    private val secondsFormatter = SimpleDateFormat("ss")
-    private val dateFormatter = SimpleDateFormat("yyyy.MM.dd")
-
-    private val handler = Handler()
-
-    private val currentTime: MutableLiveData<Date> = MutableLiveData()
-
-    private val updateTimeRunnable: Runnable = Runnable { run { updateCurrentTime() } }
-
-    init {
-        handler.postDelayed(updateTimeRunnable, 1000)
+class MainViewModel(fm: FragmentManager) : ViewModel() {
+    private val fragmentManager = fm
+    fun setActiveTab(index: Int) {
+        val fragmentClass: Class<*>
+        when (index) {
+            0 -> {
+                fragmentClass = MirrorFragment::class.java
+            }
+            1 -> {
+                fragmentClass = ClockFragment::class.java
+            }
+            2 -> {
+                fragmentClass = TimerFragment::class.java
+            }
+            else -> fragmentClass = ClockFragment::class.java
+        }
+        replaceFragment(fragmentClass)
     }
 
-    private fun updateCurrentTime(){
-        val cal = Calendar.getInstance()
-        currentTime.value = cal.getTime()
-        handler.postDelayed(updateTimeRunnable, 1000)
-    }
+    private fun replaceFragment(fragmentClass: Class<*>) {
+        try {
+            val fragment = fragmentClass.newInstance() as Fragment
+            // replace fragment
+            fragmentManager.beginTransaction().replace(R.id.content, fragment).commit()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
-    fun getCurrentTime(): LiveData<String> {
-        return Transformations.map(currentTime, fun(input: Date): String? {
-            return timeFormatter.format(input)
-        })
-    }
-
-    fun getCurrentSeconds(): LiveData<String> {
-        return Transformations.map(currentTime, fun(input: Date): String? {
-            return secondsFormatter.format(input)
-        })
-    }
-
-    fun getCurrentDate(): LiveData<String> {
-        return Transformations.map(currentTime, fun(input: Date): String? {
-            return dateFormatter.format(input)
-        })
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        handler.removeCallbacks(updateTimeRunnable)
     }
 }
