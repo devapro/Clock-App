@@ -25,7 +25,9 @@
                 tools:text="22"
                 app:layout_constraintBottom_toBottomOf="@+id/clock_tick"
                 app:layout_constraintTop_toTopOf="@+id/clock_tick"
-                app:layout_constraintEnd_toStartOf="@+id/clock_tick"/>
+                app:layout_constraintEnd_toStartOf="@+id/clock_tick"
+                android:visibility="@{model.showTime ? View.VISIBLE : View.INVISIBLE}"
+        />
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -34,7 +36,9 @@
                 android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="@+id/clock_seconds"
                 app:layout_constraintEnd_toEndOf="@+id/clock_seconds"
-                app:layout_constraintBottom_toTopOf="@+id/clock_seconds" android:id="@+id/imageButton4"/>
+                app:layout_constraintBottom_toTopOf="@+id/clock_seconds" android:id="@+id/imageButton4"
+                android:onClick="@{() -> model.changeSeconds(1)}"
+        />
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -43,7 +47,9 @@
                 android:scaleType="fitXY"
                 android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/clock_minutes"
                 android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/clock_tick"
-                app:layout_constraintBottom_toTopOf="@+id/clock_minutes"/>
+                app:layout_constraintBottom_toTopOf="@+id/clock_minutes"
+                android:onClick="@{() -> model.changeMinutes(1)}"
+        />
         <TextView
                 android:id="@+id/clock_current"
                 android:layout_width="wrap_content"
@@ -67,7 +73,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="@{model.showTick ? View.VISIBLE : View.INVISIBLE}"
+        />
         <TextView
                 android:id="@+id/clock_seconds"
                 android:layout_width="wrap_content"
@@ -79,7 +87,9 @@
                 tools:text="22"
                 app:layout_constraintTop_toTopOf="@+id/clock_tick"
                 app:layout_constraintBottom_toBottomOf="@+id/clock_tick" app:layout_constraintVertical_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/clock_tick"/>
+                app:layout_constraintStart_toEndOf="@+id/clock_tick"
+                android:visibility="@{model.showTime ? View.VISIBLE : View.INVISIBLE}"
+        />
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -88,7 +98,9 @@
                 android:scaleType="fitXY"
                 android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/clock_tick"
                 android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/clock_minutes"
-                app:layout_constraintTop_toBottomOf="@+id/clock_minutes"/>
+                app:layout_constraintTop_toBottomOf="@+id/clock_minutes"
+                android:onClick="@{() -> model.changeMinutes(-1)}"
+        />
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -99,7 +111,9 @@
                 app:layout_constraintStart_toStartOf="@+id/clock_seconds"
                 app:layout_constraintEnd_toEndOf="@+id/clock_seconds"
                 app:layout_constraintTop_toBottomOf="@+id/clock_seconds" android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                android:onClick="@{() -> model.changeSeconds(-1)}"
+        />
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -113,18 +127,26 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:onClick="@{() -> model.startTimer()}"
                     android:text="START"
+                    android:visibility="@{!model.isRunning ? View.VISIBLE : View.GONE}"
             />
             <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="STOP"/>
+                    android:onClick="@{() -> model.stopTimer()}"
+                    android:text="STOP"
+                    android:visibility="@{model.isRunning ? View.VISIBLE : View.GONE}"
+            />
             <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PAUSE"/>
+                    android:onClick="@{() -> model.pauseTimer()}"
+                    android:text="PAUSE"
+                    android:visibility="@{model.isRunning ? View.VISIBLE : View.GONE}"
+            />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

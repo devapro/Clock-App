@@ -13,7 +13,9 @@ class TimerViewModel: ViewModel() {
     private val secondsFormatter = SimpleDateFormat("ss")
     private val minutesFormatter = SimpleDateFormat("mm")
 
-    private var timerValue = 60
+    private var timerValue: Long = 10*60*1000
+    private var currentTimerValue: Long = 10*60*1000
+    private var isRunning: MutableLiveData<Boolean> = MutableLiveData()
 
     private val handler = Handler()
 
@@ -23,11 +25,18 @@ class TimerViewModel: ViewModel() {
 
     init {
         handler.postDelayed(updateTimeRunnable, 1000)
+        isRunning.value = false
+        val cal = Calendar.getInstance()
+        currentTime.value = cal.getTime()
     }
 
     private fun updateCurrentTime(){
         val cal = Calendar.getInstance()
+        val diffTime = cal.getTime().time - currentTime.value!!.time
         currentTime.value = cal.getTime()
+        if (isRunning.value!!) {
+            currentTimerValue -= diffTime
+        }
         handler.postDelayed(updateTimeRunnable, 1000)
     }
 
@@ -39,14 +48,57 @@ class TimerViewModel: ViewModel() {
 
     fun getTimerSeconds(): LiveData<String> {
         return Transformations.map(currentTime, fun(input: Date): String? {
-            return secondsFormatter.format(input)
+            return secondsFormatter.format(Date(currentTimerValue))
         })
     }
 
     fun getTimerMinutes(): LiveData<String> {
         return Transformations.map(currentTime, fun(input: Date): String? {
-            return minutesFormatter.format(input)
+            return minutesFormatter.format(Date(currentTimerValue))
         })
+    }
+
+    fun getShowTick(): LiveData<Boolean> {
+        return Transformations.map(currentTime, fun(input: Date): Boolean? {
+            return input.seconds % 2 == 0 || !isRunning.value!!
+        })
+    }
+
+    fun getShowTime(): LiveData<Boolean> {
+        return Transformations.map(currentTime, fun(input: Date): Boolean? {
+            return input.seconds % 2 == 0 || isRunning.value!!
+        })
+    }
+
+    fun getIsRunning(): LiveData<Boolean> {
+        return isRunning
+    }
+
+    fun changeSeconds(seconds: Int){
+        timerValue += seconds * 1000
+        currentTimerValue = timerValue
+        val cal = Calendar.getInstance()
+        currentTime.value = cal.getTime()
+    }
+
+    fun changeMinutes(minutes: Int) {
+        timerValue += minutes * 60 * 1000
+        currentTimerValue = timerValue
+        val cal = Calendar.getInstance()
+        currentTime.value = cal.getTime()
+    }
+
+    fun pauseTimer(){
+        isRunning.value = false
+    }
+
+    fun startTimer(){
+        isRunning.value = true
+    }
+
+    fun stopTimer(){
+        isRunning.value = false
+        currentTimerValue = timerValue
     }
 
     override fun onCleared() {
