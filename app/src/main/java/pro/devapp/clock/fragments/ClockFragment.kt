@@ -17,7 +17,7 @@ class ClockFragment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_clock, container,false)
         mBinding.lifecycleOwner = this
-        mBinding.model = ViewModelProviders.of(this).get(ClockViewModel::class.java)
+        mBinding.model = ViewModelProviders.of(activity!!).get(ClockViewModel::class.java)
         return  mBinding.root
     }
 }

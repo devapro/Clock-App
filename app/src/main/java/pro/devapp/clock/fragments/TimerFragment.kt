@@ -17,7 +17,7 @@ class TimerFragment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_timer, container,false)
         mBinding.lifecycleOwner = this
-        mBinding.model = ViewModelProviders.of(this).get(TimerViewModel::class.java)
+        mBinding.model = ViewModelProviders.of(activity!!).get(TimerViewModel::class.java)
         return  mBinding.root
     }
 }

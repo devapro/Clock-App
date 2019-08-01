@@ -3,6 +3,7 @@ package pro.devapp.clock
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -18,13 +19,33 @@ class MainActivity : AppCompatActivity() {
 
         mainBinding =  DataBindingUtil.setContentView(this, R.layout.activity_main)
         mainBinding.lifecycleOwner = this
-        mainBinding.model = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return MainViewModel(supportFragmentManager) as T
-            }
-        }).get(MainViewModel::class.java)
-
+        mainBinding.model = ViewModelProviders.of(this).get(MainViewModel::class.java)
         mainBinding.model!!.setActiveTab(1)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainBinding.model!!.setListener(object: MainViewModel.OnFragmentChangeListener{
+            override fun replaceFragment(fragmentClass: Class<*>) {
+                this@MainActivity.replaceFragment(fragmentClass)
+            }
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainBinding.model!!.setListener(null)
+    }
+
+
+    private fun replaceFragment(fragmentClass: Class<*>) {
+        try {
+            val fragment = fragmentClass.newInstance() as Fragment
+            // replace fragment
+            supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commit()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
     }
 }
