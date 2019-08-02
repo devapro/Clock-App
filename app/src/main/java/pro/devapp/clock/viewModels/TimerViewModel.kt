@@ -7,13 +7,14 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 class TimerViewModel: ViewModel() {
     private val timeFormatter = SimpleDateFormat("HH:mm:ss")
     private val secondsFormatter = SimpleDateFormat("ss")
     private val minutesFormatter = SimpleDateFormat("mm")
 
-    private var timerValue: Long = 10*60*1000
+    private var timerValue: Long = 0
     private var currentTimerValue: Long = 10*60*1000
     private var isRunning: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -23,6 +24,8 @@ class TimerViewModel: ViewModel() {
 
     private val updateTimeRunnable: Runnable = Runnable { run { updateCurrentTime() } }
 
+    private var timerListener: TimerListener? = null
+
     init {
         handler.postDelayed(updateTimeRunnable, 1000)
         isRunning.value = false
@@ -30,12 +33,19 @@ class TimerViewModel: ViewModel() {
         currentTime.value = cal.getTime()
     }
 
+    fun setTimerListener(listener: TimerListener?) {
+        timerListener = listener
+    }
+
     private fun updateCurrentTime(){
         val cal = Calendar.getInstance()
-        val diffTime = cal.getTime().time - currentTime.value!!.time
+        val diffTime = if (currentTime.value!!.time > 0) cal.getTime().time - currentTime.value!!.time else 0
         currentTime.value = cal.getTime()
         if (isRunning.value!!) {
             currentTimerValue -= diffTime
+            if (currentTimerValue <= 0){
+                ///
+            }
         }
         handler.postDelayed(updateTimeRunnable, 1000)
     }
@@ -48,13 +58,13 @@ class TimerViewModel: ViewModel() {
 
     fun getTimerSeconds(): LiveData<String> {
         return Transformations.map(currentTime, fun(input: Date): String? {
-            return secondsFormatter.format(Date(currentTimerValue))
+            return secondsFormatter.format(Date(abs(currentTimerValue)))
         })
     }
 
     fun getTimerMinutes(): LiveData<String> {
         return Transformations.map(currentTime, fun(input: Date): String? {
-            return minutesFormatter.format(Date(currentTimerValue))
+            return minutesFormatter.format(Date(abs(currentTimerValue)))
         })
     }
 
@@ -74,11 +84,20 @@ class TimerViewModel: ViewModel() {
         return isRunning
     }
 
+    fun getIsEnd(): LiveData<Boolean> {
+        return Transformations.map(currentTime, fun(input: Date): Boolean? {
+            return currentTimerValue <= 0
+        })
+    }
+
     fun changeSeconds(seconds: Int){
         timerValue += seconds * 1000
         currentTimerValue = timerValue
         val cal = Calendar.getInstance()
         currentTime.value = cal.getTime()
+        if (isRunning.value!!) {
+            timerListener?.onStartTimer(currentTimerValue)
+        }
     }
 
     fun changeMinutes(minutes: Int) {
@@ -86,23 +105,41 @@ class TimerViewModel: ViewModel() {
         currentTimerValue = timerValue
         val cal = Calendar.getInstance()
         currentTime.value = cal.getTime()
+        if (isRunning.value!!) {
+            timerListener?.onStartTimer(currentTimerValue)
+        }
     }
 
     fun pauseTimer(){
         isRunning.value = false
+        timerListener?.onStopTimer()
     }
 
     fun startTimer(){
         isRunning.value = true
+        timerListener?.onStartTimer(currentTimerValue)
     }
 
     fun stopTimer(){
         isRunning.value = false
         currentTimerValue = timerValue
+        timerListener?.onStopTimer()
+    }
+
+    fun updateCurrentTimerValueAndStart(interval: Long?) {
+        if (interval != null && interval > 0) {
+            currentTimerValue = interval
+            isRunning.value = true
+        }
     }
 
     override fun onCleared() {
         super.onCleared()
         handler.removeCallbacks(updateTimeRunnable)
+    }
+
+    interface TimerListener{
+        fun onStartTimer(interval: Long)
+        fun onStopTimer()
     }
 }

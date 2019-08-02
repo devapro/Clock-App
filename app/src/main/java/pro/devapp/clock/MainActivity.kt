@@ -20,7 +20,11 @@ class MainActivity : AppCompatActivity() {
         mainBinding =  DataBindingUtil.setContentView(this, R.layout.activity_main)
         mainBinding.lifecycleOwner = this
         mainBinding.model = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        mainBinding.model!!.setActiveTab(1)
+        if (intent?.getIntExtra("openTab", -1)!! >= 0) {
+            mainBinding.model!!.setActiveTab(intent?.getIntExtra("openTab", -1)!!)
+        } else {
+            mainBinding.model!!.setActiveTab(1)
+        }
     }
 
     override fun onResume() {

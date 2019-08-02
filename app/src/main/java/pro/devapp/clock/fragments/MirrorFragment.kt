@@ -3,7 +3,6 @@ package pro.devapp.clock.fragments
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
@@ -12,9 +11,6 @@ import pro.devapp.clock.databinding.FragmentMirrorBinding
 import pro.devapp.clock.viewModels.MirrorViewModel
 import android.hardware.Camera
 import java.io.IOException
-import android.graphics.RectF
-import android.graphics.Matrix
-import android.hardware.Camera.CameraInfo
 import android.view.*
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
@@ -49,10 +45,7 @@ class MirrorFragment: Fragment(){
 
     override fun onPause() {
         super.onPause()
-        if (camera != null){
-            camera!!.release()
-        }
-        camera = null
+        releaseCamera()
     }
 
     private fun openCamera() {
@@ -61,8 +54,36 @@ class MirrorFragment: Fragment(){
             requestCameraPermission()
             return
         }
-        camera = Camera.open(0)
-        setPreviewSize(true)
+        camera = Camera.open(mBinding.model!!.getCamera())
+        val rectPreview = mBinding.model!!.setPreviewSize(camera, activity)
+        // установка размеров surface из получившегося преобразования
+        if(rectPreview != null){
+            mBinding.surfaceView.getLayoutParams().height = rectPreview.bottom.toInt()
+            mBinding.surfaceView.getLayoutParams().width = rectPreview.right.toInt()
+        }
+    }
+
+    private fun releaseCamera() {
+        if (camera != null){
+            camera!!.release()
+        }
+        camera = null
+    }
+
+    private fun restartCamera() {
+        if (camera != null){
+            camera!!.stopPreview()
+            val result = mBinding.model!!.setCameraDisplayOrientation(activity)
+            if(camera != null) {
+                camera!!.setDisplayOrientation(result)
+            }
+            try {
+                camera!!.setPreviewDisplay(holder)
+                camera!!.startPreview()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun requestCameraPermission() {
@@ -101,103 +122,12 @@ class MirrorFragment: Fragment(){
             holder: SurfaceHolder, format: Int, width: Int,
             height: Int
         ) {
-            if (camera != null){
-                camera!!.stopPreview()
-                setCameraDisplayOrientation(0)
-                try {
-                    camera!!.setPreviewDisplay(holder)
-                    camera!!.startPreview()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+            restartCamera()
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) {
 
         }
 
-    }
-
-    fun setPreviewSize(fullScreen: Boolean) {
-        if (camera == null) {
-            return
-        }
-        // получаем размеры экрана
-        val display = activity!!.getWindowManager().getDefaultDisplay()
-        val widthIsMax = display.getWidth() > display.getHeight()
-
-        // определяем размеры превью камеры
-        val size = camera!!.getParameters().previewSize
-
-        val rectDisplay = RectF()
-        val rectPreview = RectF()
-
-        // RectF экрана, соотвествует размерам экрана
-        rectDisplay.set(0f, 0f, display.getWidth().toFloat(), display.getHeight().toFloat())
-
-        // RectF первью
-        if (widthIsMax) {
-            // превью в горизонтальной ориентации
-            rectPreview.set(0f, 0f, size.width * 1f, size.height * 1f)
-        } else {
-            // превью в вертикальной ориентации
-            rectPreview.set(0f, 0f, size.height * 1f, size.width * 1f)
-        }
-
-        val matrix = Matrix()
-        // подготовка матрицы преобразования
-        if (!fullScreen) {
-            // если превью будет "втиснут" в экран (второй вариант из урока)
-            matrix.setRectToRect(
-                rectPreview, rectDisplay,
-                Matrix.ScaleToFit.START
-            )
-        } else {
-            // если экран будет "втиснут" в превью (третий вариант из урока)
-            matrix.setRectToRect(
-                rectDisplay, rectPreview,
-                Matrix.ScaleToFit.START
-            )
-            matrix.invert(matrix)
-        }
-        // преобразование
-        matrix.mapRect(rectPreview)
-
-        // установка размеров surface из получившегося преобразования
-        mBinding.surfaceView.getLayoutParams().height = rectPreview.bottom.toInt()
-        mBinding.surfaceView.getLayoutParams().width = rectPreview.right.toInt()
-    }
-
-    fun setCameraDisplayOrientation(cameraId: Int) {
-        // определяем насколько повернут экран от нормального положения
-        val rotation = activity!!.getWindowManager().getDefaultDisplay().getRotation()
-        var degrees = 0
-        when (rotation) {
-            Surface.ROTATION_0 -> degrees = 0
-            Surface.ROTATION_90 -> degrees = 90
-            Surface.ROTATION_180 -> degrees = 180
-            Surface.ROTATION_270 -> degrees = 270
-        }
-
-        var result = 0
-
-        // получаем инфо по камере cameraId
-        val info = CameraInfo()
-        Camera.getCameraInfo(cameraId, info)
-
-        // задняя камера
-        if (info.facing == CameraInfo.CAMERA_FACING_BACK) {
-            result = 360 - degrees + info.orientation
-        } else
-        // передняя камера
-            if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
-                result = 360 - degrees - info.orientation
-                result += 360
-            }
-        result = result % 360
-        if(camera != null) {
-            camera!!.setDisplayOrientation(result)
-        }
     }
 }
