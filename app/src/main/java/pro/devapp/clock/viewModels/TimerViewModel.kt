@@ -10,12 +10,13 @@ import java.util.*
 import kotlin.math.abs
 
 class TimerViewModel: ViewModel() {
+    //TODO get current timer time from service, remove duplicate code for timer
     private val timeFormatter = SimpleDateFormat("HH:mm:ss")
     private val secondsFormatter = SimpleDateFormat("ss")
     private val minutesFormatter = SimpleDateFormat("mm")
 
-    private var timerValue: Long = 0
-    private var currentTimerValue: Long = 10*60*1000
+    private var timerValue: Long = 10 * 60 * 1000
+    private var currentTimerValue: Long = timerValue
     private var isRunning: MutableLiveData<Boolean> = MutableLiveData()
 
     private val handler = Handler()

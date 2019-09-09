@@ -4,6 +4,8 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import pro.devapp.clock.di.AppComponent
+import pro.devapp.clock.di.ClockSoundModule
 import pro.devapp.clock.di.ContextModule
 import pro.devapp.clock.di.DaggerAppComponent
 
@@ -12,10 +14,13 @@ class ClockApp : Application()
     companion object{
         const val CHANNEL_ID = "timerNotificationChanel"
     }
+
+    lateinit var appComponent: AppComponent
+
     override fun onCreate() {
         super.onCreate()
-        DaggerAppComponent.builder()
-            .contextModule(ContextModule(applicationContext))
+        appComponent = DaggerAppComponent.builder()
+            .clockSoundModule(ClockSoundModule(applicationContext))
             .build()
 
         createNotificationChanel()
@@ -28,6 +33,8 @@ class ClockApp : Application()
                 "Timer",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
+            notificationChannel.setSound(null, null)
+            notificationChannel.setShowBadge(false)
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(notificationChannel)
         }

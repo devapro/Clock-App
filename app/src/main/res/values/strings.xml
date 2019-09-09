@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Clock</string>
+    <string name="notification_timer_running">Timer running</string>
+    <string name="notification_timer_end">Timer end!</string>
 </resources>

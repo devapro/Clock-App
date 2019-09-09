@@ -43,7 +43,11 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     override fun onDetach() {
         super.onDetach()
         mBinding?.model?.setTimerListener(null)
-        activity?.unbindService(mConnection)
+        try {
+            activity?.unbindService(mConnection)
+        } catch (e: Exception) {
+
+        }
     }
 
     override fun onStartTimer(interval: Long) {

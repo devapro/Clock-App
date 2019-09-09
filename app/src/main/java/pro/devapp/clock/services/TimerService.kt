@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.app.NotificationManager
 import android.content.Context
+import pro.devapp.clock.utils.ClockSounds
+import javax.inject.Inject
 import kotlin.math.abs
 
 
@@ -24,6 +26,14 @@ class TimerService: Service() {
     private val timerFormatter = SimpleDateFormat("mm:ss")
     private val handler = Handler()
     private val updateTimeRunnable: Runnable = Runnable { run { updateCurrentTime() } }
+
+    @Inject
+    lateinit var clockSounds: ClockSounds
+
+    override fun onCreate() {
+        super.onCreate()
+        (application as ClockApp).appComponent.inject(this)
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         currentTimerValue = intent!!.getLongExtra("interval", 0)
@@ -38,6 +48,7 @@ class TimerService: Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(updateTimeRunnable)
+        clockSounds.stopAll()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -54,12 +65,15 @@ class TimerService: Service() {
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
         return NotificationCompat.Builder(this, ClockApp.CHANNEL_ID)
-            .setContentTitle(if (currentTimerValue > 0) "Timer running" else "Timer end!")
+            .setContentTitle(if (currentTimerValue > 0) applicationContext.resources.getString(R.string.notification_timer_running) else applicationContext.resources.getString(R.string.notification_timer_end))
             .setContentText(timerFormatter.format(Date(abs(currentTimerValue))))
             .setSmallIcon(R.drawable.ic_timer_notification)
             .setContentIntent(pendingIntent)
-            // TODO set sound
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setSound(null)
             .build()
     }
 
@@ -74,7 +88,7 @@ class TimerService: Service() {
         currentTime = cal.getTime().time
         currentTimerValue -= diffTime
         if (currentTimerValue <= 0){
-            //TODO
+            clockSounds.playSound(this, R.raw.timer_end)
         }
         updateNotification()
         handler.postDelayed(updateTimeRunnable, 1000)
