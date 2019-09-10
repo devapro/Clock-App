@@ -2,7 +2,6 @@ package pro.devapp.clock.di
 
 import dagger.Component
 import pro.devapp.clock.MainActivity
-import pro.devapp.clock.fragments.TimerFragment
 import pro.devapp.clock.services.TimerService
 import pro.devapp.clock.viewModels.TimerViewModel
 import javax.inject.Singleton

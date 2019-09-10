@@ -20,8 +20,6 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     private val secondsFormatter = SimpleDateFormat("ss")
     private val minutesFormatter = SimpleDateFormat("mm")
 
-    private var isRunning: MutableLiveData<Boolean> = MutableLiveData()
-
     private val handler = Handler()
 
     private val showTickness: MutableLiveData<Boolean> = MutableLiveData()
@@ -35,16 +33,11 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
 
     init {
         handler.postDelayed(updateUiRunnable, 500)
-        isRunning.value = false
         showTickness.value = true
     }
 
     fun setTimerListener(listener: TimerListener?) {
         timerListener = listener
-    }
-
-    fun setTimerRunning(){
-        isRunning.value = true
     }
 
     /**
@@ -80,7 +73,7 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
      */
     fun getShowTick(): LiveData<Boolean> {
         return Transformations.map(showTickness, fun(input: Boolean): Boolean? {
-            return input || !isRunning.value!!
+            return input || !timerModule.isRunning.value!!
         })
     }
 
@@ -89,12 +82,12 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
      */
     fun getShowTime(): LiveData<Boolean> {
         return Transformations.map(showTickness, fun(input: Boolean): Boolean? {
-            return input || isRunning.value!!
+            return input || timerModule.isRunning.value!!
         })
     }
 
     fun getIsRunning(): LiveData<Boolean> {
-        return isRunning
+        return timerModule.isRunning
     }
 
     fun getIsEnd(): LiveData<Boolean> {
@@ -114,17 +107,16 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     }
 
     fun pauseTimer(){
-        isRunning.value = false
-        timerListener?.onStopTimer()
+        timerModule.isRunning.value = false
     }
 
     fun startTimer(){
-        isRunning.value = true
-        timerListener?.onStartTimer(timerModule.currentTimerValue.value ?: 0)
+        timerModule.isRunning.value = true
+        timerListener?.onStartTimer()
     }
 
     fun stopTimer(){
-        isRunning.value = false
+        timerModule.isRunning.value = false
         timerModule.currentTimerValue.value = timerModule.timerValue.value
         timerListener?.onStopTimer()
     }
@@ -140,7 +132,7 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     }
 
     interface TimerListener{
-        fun onStartTimer(interval: Long)
+        fun onStartTimer()
         fun onStopTimer()
     }
 }

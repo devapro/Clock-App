@@ -21,9 +21,13 @@ class TimerModule {
     @NonNull
     var currentTimerValue: MutableLiveData<Long> = MutableLiveData()
 
+    @NonNull
+    var isRunning: MutableLiveData<Boolean> = MutableLiveData()
+
     init {
         timerValue.value = 10 * 60 * 1000
         currentTimerValue.value = 10 * 60 * 1000
+        isRunning.value = false
     }
 
     @Singleton
