@@ -15,14 +15,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.app.NotificationManager
 import android.content.Context
+import pro.devapp.clock.di.TimerModule
 import pro.devapp.clock.utils.ClockSounds
 import javax.inject.Inject
 import kotlin.math.abs
 
 
 class TimerService: Service() {
-    private var currentTimerValue: Long = -1
-    private var currentTime: Long = 0
+    private var lastUpdatedTime: Long = 0
     private val timerFormatter = SimpleDateFormat("mm:ss")
     private val handler = Handler()
     private val updateTimeRunnable: Runnable = Runnable { run { updateCurrentTime() } }
@@ -30,18 +30,17 @@ class TimerService: Service() {
     @Inject
     lateinit var clockSounds: ClockSounds
 
+    @Inject
+    lateinit var timerModule: TimerModule
+
     override fun onCreate() {
         super.onCreate()
         (application as ClockApp).appComponent.inject(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        currentTimerValue = intent!!.getLongExtra("interval", 0)
-        if (currentTimerValue < 1) {
-            stopSelf()
-        }
         startForeground(1, createNotification())
-        handler.postDelayed(updateTimeRunnable, 1000)
+        handler.postDelayed(updateTimeRunnable, 500)
         return START_NOT_STICKY
     }
 
@@ -55,14 +54,15 @@ class TimerService: Service() {
         return LocalBinder()
     }
 
-    fun getCurrentTimerValue(): Long {
-        return currentTimerValue
-    }
-
     private fun createNotification(): Notification {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.putExtra("openTab", 2)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+
+        var currentTimerValue = timerModule.currentTimerValue.value
+        if(currentTimerValue == null){
+            currentTimerValue = 0
+        }
 
         return NotificationCompat.Builder(this, ClockApp.CHANNEL_ID)
             .setContentTitle(if (currentTimerValue > 0) applicationContext.resources.getString(R.string.notification_timer_running) else applicationContext.resources.getString(R.string.notification_timer_end))
@@ -83,15 +83,19 @@ class TimerService: Service() {
     }
 
     private fun updateCurrentTime(){
+        var currentTimerValue = timerModule.currentTimerValue.value
+        if(currentTimerValue == null){
+            currentTimerValue = 0
+        }
         val cal = Calendar.getInstance()
-        val diffTime = if (currentTime > 0) cal.getTime().time - currentTime else 0
-        currentTime = cal.getTime().time
-        currentTimerValue -= diffTime
+        val diffTime = if (lastUpdatedTime > 0) cal.getTime().time - lastUpdatedTime else 0
+        lastUpdatedTime = cal.getTime().time
+        timerModule.currentTimerValue.value = currentTimerValue - diffTime
         if (currentTimerValue <= 0){
             clockSounds.playSound(this, R.raw.timer_end)
         }
         updateNotification()
-        handler.postDelayed(updateTimeRunnable, 1000)
+        handler.postDelayed(updateTimeRunnable, 500)
     }
 
     inner class LocalBinder : Binder() {

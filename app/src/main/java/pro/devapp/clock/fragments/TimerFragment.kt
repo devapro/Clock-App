@@ -14,11 +14,12 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import pro.devapp.clock.R
 import pro.devapp.clock.databinding.FragmentTimerBinding
 import pro.devapp.clock.services.TimerService
 import pro.devapp.clock.services.TimerService.LocalBinder
 import pro.devapp.clock.viewModels.TimerViewModel
+import android.app.ActivityManager
+
 
 class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     private var mBinding: FragmentTimerBinding? = null
@@ -26,7 +27,7 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     private var timerService: TimerService? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_timer, container,false)
+        mBinding = DataBindingUtil.inflate(inflater, pro.devapp.clock.R.layout.fragment_timer, container,false)
         mBinding?.lifecycleOwner = this
         mBinding?.model = ViewModelProviders.of(activity!!).get(TimerViewModel::class.java)
         mBinding?.model?.setTimerListener(this)
@@ -36,7 +37,9 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         serviceIntent = Intent(context, TimerService::class.java)
-        activity?.bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE)
+        if (isServiceRunning(TimerService::class.java)){
+            activity?.bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE)
+        }
         mBinding?.model?.setTimerListener(this)
     }
 
@@ -53,7 +56,6 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     override fun onStartTimer(interval: Long) {
         Log.d("TIMER", "TimerFragment onStartTimer " + interval)
         if (serviceIntent != null && context != null) {
-            serviceIntent?.putExtra("interval", interval)
             ContextCompat.startForegroundService(context!!, serviceIntent!!)
             activity?.bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE)
         }
@@ -65,6 +67,18 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
         Log.d("TIMER", "TimerFragment onStopTimer")
     }
 
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = context?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.className)) {
+                if (service.foreground) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     private val mConnection: ServiceConnection = object: ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -74,7 +88,9 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as LocalBinder
             timerService = binder.serviceInstance
-            mBinding?.model?.updateCurrentTimerValueAndStart(timerService?.getCurrentTimerValue())
+            if (timerService != null) {
+                mBinding?.model?.setTimerRunning()
+            }
         }
 
     }
