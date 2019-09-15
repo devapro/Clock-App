@@ -19,6 +19,7 @@ import pro.devapp.clock.services.TimerService
 import pro.devapp.clock.services.TimerService.LocalBinder
 import pro.devapp.clock.viewModels.TimerViewModel
 import android.app.ActivityManager
+import pro.devapp.clock.utils.ServiceUtils
 
 
 class TimerFragment: Fragment(), TimerViewModel.TimerListener {
@@ -37,7 +38,7 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         serviceIntent = Intent(context, TimerService::class.java)
-        if (isServiceRunning(TimerService::class.java)){
+        if (ServiceUtils.isServiceRunning(context!!, TimerService::class.java)){
             activity?.bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE)
         }
         mBinding?.model?.setTimerListener(this)
@@ -63,18 +64,6 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     override fun onStopTimer() {
         activity?.unbindService(mConnection)
         activity?.stopService(serviceIntent)
-    }
-
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = context?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.className)) {
-                if (service.foreground) {
-                    return true
-                }
-            }
-        }
-        return false
     }
 
     private val mConnection: ServiceConnection = object: ServiceConnection {

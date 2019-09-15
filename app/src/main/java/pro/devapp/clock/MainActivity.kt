@@ -1,17 +1,21 @@
 package pro.devapp.clock
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import pro.devapp.clock.databinding.ActivityMainBinding
+import pro.devapp.clock.services.NoiseDetectorService
+import pro.devapp.clock.utils.ServiceUtils
 import pro.devapp.clock.viewModels.MainViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
+    private var serviceIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +28,9 @@ class MainActivity : AppCompatActivity() {
             mainBinding.model!!.setActiveTab(intent?.getIntExtra("openTab", -1)!!)
         } else {
             mainBinding.model!!.setActiveTab(1)
+        }
+        if(mainBinding.model!!.checkPermissionMic(this)){
+            runService()
         }
     }
 
@@ -50,6 +57,24 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
 
+    private fun runService(){
+        serviceIntent = Intent(this, NoiseDetectorService::class.java)
+        if (!ServiceUtils.isServiceRunning(this, NoiseDetectorService::class.java)){
+           startService(serviceIntent)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == MainViewModel.REQUEST_MIC_PERMISSION){
+            if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
+            } else {
+                runService()
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 }

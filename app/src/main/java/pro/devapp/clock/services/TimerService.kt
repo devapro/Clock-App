@@ -89,7 +89,7 @@ class TimerService: Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(1, createNotification())
         handler.postDelayed(updateTimeRunnable, 500)
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onDestroy() {
