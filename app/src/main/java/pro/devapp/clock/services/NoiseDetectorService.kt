@@ -114,6 +114,7 @@ class NoiseDetectorService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setAutoCancel(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setDefaults(Notification.DEFAULT_ALL)
             .setSound(null)
@@ -128,11 +129,13 @@ class NoiseDetectorService : Service() {
                     wakeLock!!.acquire(5 * 60 * 1000)
                 }
                 lock!!.disableKeyguard()
-                val intent = Intent(applicationContext, WakeUpActivity::class.java)
-                intent.flags = FLAG_ACTIVITY_NEW_TASK
+//                val intent = Intent(applicationContext, WakeUpActivity::class.java)
+//                intent.flags = FLAG_ACTIVITY_NEW_TASK
                 //startActivity(intent)
+                handler.postDelayed(noiseDetectorRunnuble, 3000)
+            } else {
+                handler.postDelayed(noiseDetectorRunnuble, 1000)
             }
-            handler.postDelayed(noiseDetectorRunnuble, 5000)
         } else {
             handler.postDelayed(noiseDetectorRunnuble, 500)
         }

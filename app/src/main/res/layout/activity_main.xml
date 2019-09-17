@@ -31,7 +31,7 @@
                 android:background="@android:color/transparent"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
-                android:contentDescription="TODO"
+                android:tint="@{model.isActiveTab(0) ? @color/colorGreen : @android:color/white }"
                 android:onClick="@{() -> model.setActiveTab(0)}"
         />
         <ImageButton
@@ -44,6 +44,7 @@
                 android:layout_marginEnd="8dp" app:layout_constraintStart_toEndOf="@+id/imageButton"
                 android:layout_marginStart="8dp" android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
+                android:tint="@{model.isActiveTab(1) ? @color/colorGreen : @android:color/white }"
                 android:onClick="@{() -> model.setActiveTab(1)}"
         />
         <ImageButton
@@ -54,7 +55,8 @@
                 android:id="@+id/imageButton3" app:layout_constraintEnd_toEndOf="parent"
                 android:background="@android:color/transparent"
                 android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent" android:contentDescription="TODO"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:tint="@{model.isActiveTab(2) ? @color/colorGreen : @android:color/white }"
                 android:onClick="@{() -> model.setActiveTab(2)}"
         />
 

@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.graphics.drawable.toBitmap
 import pro.devapp.clock.di.TimerModule
 import pro.devapp.clock.utils.ClockSounds
 import javax.inject.Inject
@@ -40,6 +39,8 @@ class TimerService: Service() {
     private lateinit var pendingIntentStop: PendingIntent
     private lateinit var pendingIntentStart: PendingIntent
 
+    private var isRingPlaing = false
+
     @Inject
     lateinit var clockSounds: ClockSounds
 
@@ -52,6 +53,7 @@ class TimerService: Service() {
         pauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 timerModule.isRunning.value = false
+                isRingPlaing = false
                 updateNotification()
             }
         }
@@ -65,6 +67,7 @@ class TimerService: Service() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 timerModule.isRunning.value = false
                 timerModule.currentTimerValue.value = timerModule.timerValue.value
+                isRingPlaing = false
                 this@TimerService.stopForeground(true)
             }
         }
@@ -140,6 +143,7 @@ class TimerService: Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setAutoCancel(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setDefaults(Notification.DEFAULT_ALL)
             .setSound(null)
@@ -160,8 +164,9 @@ class TimerService: Service() {
             }
             val diffTime = if (lastUpdatedTime > 0) cal.getTime().time - lastUpdatedTime else 0
             timerModule.currentTimerValue.value = currentTimerValue - diffTime
-            if (currentTimerValue <= 0){
-                clockSounds.playSound(this, R.raw.timer_end)
+            if (currentTimerValue <= 0 && !isRingPlaing){
+                isRingPlaing = true
+                clockSounds.playSound(R.raw.timer_end)
             }
             updateNotification()
         }

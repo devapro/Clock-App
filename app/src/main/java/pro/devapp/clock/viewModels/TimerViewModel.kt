@@ -25,8 +25,11 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     private val showTickness: MutableLiveData<Boolean> = MutableLiveData()
 
     private val updateUiRunnable: Runnable = Runnable { run { updateUi() } }
+    private val enableBinking: Runnable = Runnable { run { stopBlink = false } }
 
     private var timerListener: TimerListener? = null
+
+    private var stopBlink: Boolean = false
 
     @Inject
     lateinit var timerModule: TimerModule
@@ -82,7 +85,7 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
      */
     fun getShowTime(): LiveData<Boolean> {
         return Transformations.map(showTickness, fun(input: Boolean): Boolean? {
-            return input || timerModule.isRunning.value!!
+            return input || timerModule.isRunning.value!! || stopBlink
         })
     }
 
@@ -99,11 +102,13 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     fun changeSeconds(seconds: Int){
         timerModule.timerValue.value = (timerModule.timerValue.value ?: 0) + seconds * 1000
         timerModule.currentTimerValue.value = timerModule.timerValue.value
+        stopBinking()
     }
 
     fun changeMinutes(minutes: Int) {
         timerModule.timerValue.value = (timerModule.timerValue.value?: 0) + minutes * 60 * 1000
         timerModule.currentTimerValue.value = timerModule.timerValue.value
+        stopBinking()
     }
 
     fun pauseTimer(){
@@ -129,6 +134,12 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
     private fun updateUi(){
         showTickness.value = !showTickness.value!!
         handler.postDelayed(updateUiRunnable, 500)
+    }
+
+    private fun stopBinking(){
+        stopBlink = true
+        handler.removeCallbacks(enableBinking)
+        handler.postDelayed(enableBinking, 1000)
     }
 
     interface TimerListener{

@@ -24,12 +24,11 @@ class MainActivity : AppCompatActivity() {
         mainBinding =  DataBindingUtil.setContentView(this, R.layout.activity_main)
         mainBinding.lifecycleOwner = this
         mainBinding.model = ViewModelProviders.of(this).get(MainViewModel::class.java)
+
         if (intent?.getIntExtra("openTab", -1)!! >= 0) {
-            mainBinding.model!!.setActiveTab(intent?.getIntExtra("openTab", -1)!!)
-        } else {
-            mainBinding.model!!.setActiveTab(1)
+            mainBinding.model?.setActiveTab(intent?.getIntExtra("openTab", -1)!!)
         }
-        if(mainBinding.model!!.checkPermissionMic(this)){
+        if(mainBinding.model != null && mainBinding.model!!.checkPermissionMic(this)){
             runService()
         }
     }

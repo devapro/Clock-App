@@ -5,10 +5,14 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import pro.devapp.clock.fragments.ClockFragment
 import pro.devapp.clock.fragments.MirrorFragment
 import pro.devapp.clock.fragments.TimerFragment
+import java.util.*
 
 class MainViewModel : ViewModel() {
     companion object{
@@ -16,15 +20,19 @@ class MainViewModel : ViewModel() {
     }
 
     private var fragmentChangeListener: OnFragmentChangeListener? = null
-    private var currentTab = 0
+    private var currentTab : MutableLiveData<Int> = MutableLiveData()
+
+    init {
+        currentTab.value = 1
+    }
 
     fun setListener(listener: OnFragmentChangeListener?) {
         fragmentChangeListener = listener
-        setActiveTab(currentTab)
+        setActiveTab(currentTab.value!!)
     }
 
     fun setActiveTab(index: Int) {
-        currentTab = index
+        currentTab.value = index
         if (fragmentChangeListener != null) {
             val fragmentClass: Class<*>
             when (index) {
@@ -50,6 +58,12 @@ class MainViewModel : ViewModel() {
             return false
         }
         return true
+    }
+
+    fun isActiveTab(index: Int): LiveData<Boolean> {
+        return Transformations.map(currentTab, fun(input: Int): Boolean? {
+            return currentTab.value == index
+        })
     }
 
     interface OnFragmentChangeListener {

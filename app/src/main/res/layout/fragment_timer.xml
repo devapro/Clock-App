@@ -29,27 +29,50 @@
                 android:visibility="@{model.showTime ? View.VISIBLE : View.INVISIBLE}"
         />
         <ImageButton
+                android:id="@+id/setSecondsDec"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="@+id/clock_seconds"
-                app:layout_constraintEnd_toEndOf="@+id/clock_seconds"
-                app:layout_constraintBottom_toTopOf="@+id/clock_seconds" android:id="@+id/imageButton4"
-                android:onClick="@{() -> model.changeSeconds(1)}"
-        />
+                app:layout_constraintBottom_toTopOf="@+id/clock_seconds"
+                android:onClick="@{() -> model.changeSeconds(10)}"
+                app:layout_constraintStart_toEndOf="@+id/clock_current" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/setSeconds"/>
         <ImageButton
+                android:id="@+id/setSeconds"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/clock_minutes"
-                android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/clock_tick"
+                app:layout_constraintBottom_toTopOf="@+id/clock_seconds"
+                android:onClick="@{() -> model.changeSeconds(1)}"
+                app:layout_constraintStart_toEndOf="@+id/setSecondsDec"
+                app:layout_constraintEnd_toEndOf="@+id/clock_seconds"/>
+        <ImageButton
+                android:id="@+id/setMinutesDec"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toTopOf="@+id/clock_minutes"
+                android:onClick="@{() -> model.changeMinutes(10)}"
+                app:layout_constraintEnd_toStartOf="@+id/setMinutes"
+                app:layout_constraintStart_toStartOf="@+id/clock_minutes"/>
+        <ImageButton
+                android:id="@+id/setMinutes"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
                 app:layout_constraintBottom_toTopOf="@+id/clock_minutes"
                 android:onClick="@{() -> model.changeMinutes(1)}"
-        />
+                app:layout_constraintStart_toEndOf="@+id/setMinutesDec" android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/clock_tick"/>
         <TextView
                 android:id="@+id/clock_current"
                 android:layout_width="wrap_content"
@@ -91,17 +114,30 @@
                 android:visibility="@{model.showTime ? View.VISIBLE : View.INVISIBLE}"
         />
         <ImageButton
+                android:id="@+id/setMinutesDecDown"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/clock_tick"
-                android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/clock_minutes"
+                app:layout_constraintTop_toBottomOf="@+id/clock_minutes"
+                android:onClick="@{() -> model.changeMinutes(-10)}"
+                app:layout_constraintEnd_toStartOf="@+id/setMinutesDown"
+                app:layout_constraintStart_toStartOf="@+id/clock_minutes"/>
+        <ImageButton
+                android:id="@+id/setMinutesDown"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
                 app:layout_constraintTop_toBottomOf="@+id/clock_minutes"
                 android:onClick="@{() -> model.changeMinutes(-1)}"
-        />
+                app:layout_constraintStart_toEndOf="@+id/setMinutesDecDown"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/clock_tick"/>
         <ImageButton
+                android:id="@+id/setSecondsDecDown"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
@@ -109,11 +145,24 @@
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="@+id/clock_seconds"
-                app:layout_constraintEnd_toEndOf="@+id/clock_seconds"
-                app:layout_constraintTop_toBottomOf="@+id/clock_seconds" android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/clock_seconds"
+                android:layout_marginStart="8dp"
+                android:onClick="@{() -> model.changeSeconds(-10)}"
+                app:layout_constraintStart_toEndOf="@+id/setMinutesDecDown"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/setSecondsDown"/>
+        <ImageButton
+                android:id="@+id/setSecondsDown"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:layout_constraintTop_toBottomOf="@+id/clock_seconds"
                 android:onClick="@{() -> model.changeSeconds(-1)}"
-        />
+                app:layout_constraintStart_toEndOf="@+id/setSecondsDecDown"
+                app:layout_constraintEnd_toEndOf="@+id/clock_seconds"/>
 
         <LinearLayout
                 android:layout_width="match_parent"
