@@ -25,7 +25,7 @@
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                app:srcCompat="@drawable/ic_camera_black_24dp"
+                app:srcCompat="@drawable/ic_tab_mirror"
                 android:scaleType="fitXY"
                 android:id="@+id/imageButton" app:layout_constraintStart_toStartOf="parent"
                 android:background="@android:color/transparent"
@@ -37,7 +37,7 @@
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                app:srcCompat="@drawable/ic_access_alarm_black_24dp"
+                app:srcCompat="@drawable/ic_tab_clock"
                 android:scaleType="fitXY"
                 android:id="@+id/imageButton2" app:layout_constraintEnd_toStartOf="@+id/imageButton3"
                 android:background="@android:color/transparent"
@@ -50,7 +50,7 @@
         <ImageButton
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                app:srcCompat="@drawable/ic_timer_black_24dp"
+                app:srcCompat="@drawable/ic_tab_timer"
                 android:scaleType="fitXY"
                 android:id="@+id/imageButton3" app:layout_constraintEnd_toEndOf="parent"
                 android:background="@android:color/transparent"
@@ -59,6 +59,18 @@
                 android:tint="@{model.isActiveTab(2) ? @color/colorGreen : @android:color/white }"
                 android:onClick="@{() -> model.setActiveTab(2)}"
         />
+
+        <ImageButton
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:srcCompat="@drawable/ic_settings"
+                android:scaleType="fitXY"
+                android:id="@+id/buttonSettings"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> model.setActiveTab(2)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
