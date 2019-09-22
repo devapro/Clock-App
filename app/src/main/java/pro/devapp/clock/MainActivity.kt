@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import pro.devapp.clock.databinding.ActivityMainBinding
 import pro.devapp.clock.services.NoiseDetectorService
+import pro.devapp.clock.utils.REQUEST_MIC_PERMISSION
 import pro.devapp.clock.utils.ServiceUtils
+import pro.devapp.clock.utils.checkPermissionMic
 import pro.devapp.clock.viewModels.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -28,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         if (intent?.getIntExtra("openTab", -1)!! >= 0) {
             mainBinding.model?.setActiveTab(intent?.getIntExtra("openTab", -1)!!)
         }
-        if(mainBinding.model != null && mainBinding.model!!.checkPermissionMic(this)){
+        if(mainBinding.model != null && checkPermissionMic(this)){
             runService()
         }
     }
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == MainViewModel.REQUEST_MIC_PERMISSION){
+        if (requestCode == REQUEST_MIC_PERMISSION){
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
             } else {

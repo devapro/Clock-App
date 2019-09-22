@@ -1,10 +1,5 @@
 package pro.devapp.clock.viewModels
 
-import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -12,14 +7,15 @@ import androidx.lifecycle.ViewModel
 import pro.devapp.clock.fragments.ClockFragment
 import pro.devapp.clock.fragments.MirrorFragment
 import pro.devapp.clock.fragments.TimerFragment
-import java.util.*
 
 class MainViewModel : ViewModel() {
-    companion object{
-        const val REQUEST_MIC_PERMISSION = 0
-    }
-
+    /**
+     * Change tab listener
+     */
     private var fragmentChangeListener: OnFragmentChangeListener? = null
+    /**
+     * Current tab index
+     */
     private var currentTab : MutableLiveData<Int> = MutableLiveData()
 
     init {
@@ -31,6 +27,9 @@ class MainViewModel : ViewModel() {
         setActiveTab(currentTab.value!!)
     }
 
+    /**
+     * Set current tab
+     */
     fun setActiveTab(index: Int) {
         currentTab.value = index
         if (fragmentChangeListener != null) {
@@ -49,15 +48,6 @@ class MainViewModel : ViewModel() {
             }
             fragmentChangeListener!!.replaceFragment(fragmentClass)
         }
-    }
-
-    fun checkPermissionMic(activity: Activity): Boolean{
-        val permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(activity, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_MIC_PERMISSION)
-            return false
-        }
-        return true
     }
 
     fun isActiveTab(index: Int): LiveData<Boolean> {

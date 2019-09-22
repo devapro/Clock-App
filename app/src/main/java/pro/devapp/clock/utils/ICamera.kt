@@ -1,7 +1,9 @@
 package pro.devapp.clock.utils
 
-import android.view.SurfaceHolder
+import android.view.SurfaceView
+import androidx.fragment.app.FragmentActivity
 
-interface ICamera {
-    fun getSurfaceHolder() : SurfaceHolder
+interface ICamera: IPermissionManager {
+    fun getActivity(): FragmentActivity?
+    fun getSurfaceView(): SurfaceView
 }

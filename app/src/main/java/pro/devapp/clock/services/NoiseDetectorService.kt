@@ -19,8 +19,6 @@ import pro.devapp.clock.MainActivity
 import pro.devapp.clock.R
 import android.app.Activity
 import android.app.KeyguardManager
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import pro.devapp.clock.WakeUpActivity
 import android.view.Display
 import android.hardware.display.DisplayManager
 import android.os.Build
@@ -120,15 +118,12 @@ class NoiseDetectorService : Service() {
 
     private fun detectNoise(){
         if (getAmplitudeEMA() > 3.0){
-            Toast.makeText(applicationContext, "DETECT!!!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, "Detect noise!", Toast.LENGTH_SHORT).show()
             if (!isScreenOn(applicationContext)){
                 if (!wakeLock!!.isHeld()) {
                     wakeLock!!.acquire(5 * 60 * 1000)
                 }
                 lock!!.disableKeyguard()
-//                val intent = Intent(applicationContext, WakeUpActivity::class.java)
-//                intent.flags = FLAG_ACTIVITY_NEW_TASK
-                //startActivity(intent)
                 handler.postDelayed(noiseDetectorRunnuble, 3000)
             } else {
                 handler.postDelayed(noiseDetectorRunnuble, 1000)

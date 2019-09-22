@@ -35,8 +35,7 @@ class ClockApp : Application()
             )
             notificationChannel.setSound(null, null)
             notificationChannel.setShowBadge(false)
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(notificationChannel)
+            getSystemService(NotificationManager::class.java)?.createNotificationChannel(notificationChannel)
         }
     }
 }

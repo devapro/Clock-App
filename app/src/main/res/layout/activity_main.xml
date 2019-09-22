@@ -60,18 +60,5 @@
                 android:onClick="@{() -> model.setActiveTab(2)}"
         />
 
-        <ImageButton
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                app:srcCompat="@drawable/ic_settings"
-                android:scaleType="fitXY"
-                android:id="@+id/buttonSettings"
-                android:background="@android:color/transparent"
-                android:onClick="@{() -> model.setActiveTab(2)}"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

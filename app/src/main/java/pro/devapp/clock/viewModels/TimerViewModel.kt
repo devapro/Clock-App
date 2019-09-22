@@ -24,8 +24,15 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
 
     private val showTickness: MutableLiveData<Boolean> = MutableLiveData()
 
+    /**
+     * Update timer numbers and blink seconds points
+     */
     private val updateUiRunnable: Runnable = Runnable { run { updateUi() } }
-    private val enableBinking: Runnable = Runnable { run { stopBlink = false } }
+
+    /**
+     * Stop blink seconds points if user start setting value by user
+     */
+    private val enableBlinking: Runnable = Runnable { run { stopBlink = false } }
 
     private var timerListener: TimerListener? = null
 
@@ -89,37 +96,58 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
         })
     }
 
+    /**
+     * Is running timer flag for ui
+     */
     fun getIsRunning(): LiveData<Boolean> {
         return timerModule.isRunning
     }
 
+    /**
+     * Is timer reached time for show warning indicator
+     */
     fun getIsEnd(): LiveData<Boolean> {
         return Transformations.map(showTickness, fun(input: Boolean): Boolean? {
             return (timerModule.currentTimerValue.value ?: 0) <= 0
         })
     }
 
+    /**
+     * Change timer value (seconds)
+     */
     fun changeSeconds(seconds: Int){
         timerModule.timerValue.value = (timerModule.timerValue.value ?: 0) + seconds * 1000
         timerModule.currentTimerValue.value = timerModule.timerValue.value
         stopBinking()
     }
 
+    /**
+     * Change timer value (minutes)
+     */
     fun changeMinutes(minutes: Int) {
         timerModule.timerValue.value = (timerModule.timerValue.value?: 0) + minutes * 60 * 1000
         timerModule.currentTimerValue.value = timerModule.timerValue.value
         stopBinking()
     }
 
+    /**
+     * Pause timer
+     */
     fun pauseTimer(){
         timerModule.isRunning.value = false
     }
 
+    /**
+     * Start timer
+     */
     fun startTimer(){
         timerModule.isRunning.value = true
         timerListener?.onStartTimer()
     }
 
+    /**
+     * Stop timer (reset current value)
+     */
     fun stopTimer(){
         timerModule.isRunning.value = false
         timerModule.currentTimerValue.value = timerModule.timerValue.value
@@ -138,8 +166,8 @@ class TimerViewModel(@NonNull application: Application): AndroidViewModel(applic
 
     private fun stopBinking(){
         stopBlink = true
-        handler.removeCallbacks(enableBinking)
-        handler.postDelayed(enableBinking, 1000)
+        handler.removeCallbacks(enableBlinking)
+        handler.postDelayed(enableBlinking, 1000)
     }
 
     interface TimerListener{
