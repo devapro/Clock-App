@@ -16,24 +16,23 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.core.content.ContextCompat
 
+
+
 class MirrorFragment: Fragment(){
     private lateinit var mBinding: FragmentMirrorBinding
 
     private lateinit var holder: SurfaceHolder
-    private lateinit var holderCallback: HolderCallback
     private var camera: Camera? = null
 
-    private val REQUEST_CAMERA_PERMISSION = 121
+    private val REQUEST_CAMERA_PERMISSION = 100
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_mirror, container,false)
         mBinding.lifecycleOwner = this
         mBinding.model = ViewModelProviders.of(this).get(MirrorViewModel::class.java)
 
-        holder = mBinding.surfaceView.getHolder()
-
-        holderCallback = HolderCallback()
-        holder.addCallback(holderCallback)
+        holder = mBinding.surfaceView.holder
+        holder.addCallback(HolderCallback())
 
         return  mBinding.root
     }
@@ -48,44 +47,55 @@ class MirrorFragment: Fragment(){
         releaseCamera()
     }
 
+    /**
+     * Open camera or request permissions
+     */
     private fun openCamera() {
         val permission = ContextCompat.checkSelfPermission(activity!!, Manifest.permission.CAMERA)
         if (permission != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission()
             return
         }
-        camera = Camera.open(mBinding.model!!.getCamera())
-        val rectPreview = mBinding.model!!.setPreviewSize(camera, activity)
-        // установка размеров surface из получившегося преобразования
+        camera = Camera.open(mBinding.model!!.getCamera(context))
+        val rectPreview = mBinding.model?.setPreviewSize(camera, activity)
+        // set surface size
         if(rectPreview != null){
             mBinding.surfaceView.getLayoutParams().height = rectPreview.bottom.toInt()
             mBinding.surfaceView.getLayoutParams().width = rectPreview.right.toInt()
         }
     }
 
+    /**
+     * Stop camera
+     */
     private fun releaseCamera() {
-        if (camera != null){
-            camera!!.release()
-        }
+        camera?.stopPreview()
+        camera?.release()
         camera = null
     }
 
+    /**
+     * Restart after changes
+     */
     private fun restartCamera() {
         if (camera != null){
-            camera!!.stopPreview()
-            val result = mBinding.model!!.setCameraDisplayOrientation(activity)
+            camera?.stopPreview()
+            val result = mBinding.model!!.setCameraDisplayOrientation(activity, mBinding.model!!.getCamera(context))
             if(camera != null) {
-                camera!!.setDisplayOrientation(result)
+                camera?.setDisplayOrientation(result)
             }
             try {
-                camera!!.setPreviewDisplay(holder)
-                camera!!.startPreview()
+                camera?.setPreviewDisplay(holder)
+                camera?.startPreview()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
+    /**
+     * Request permissions for camera
+     */
     private fun requestCameraPermission() {
         requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
     }
@@ -95,7 +105,7 @@ class MirrorFragment: Fragment(){
                                             grantResults: IntArray) {
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context, "Error", LENGTH_LONG).show()
+                Toast.makeText(context, resources.getText(R.string.camera_permissions_error), LENGTH_LONG).show()
             } else {
                 openCamera()
             }
@@ -108,20 +118,18 @@ class MirrorFragment: Fragment(){
 
         override fun surfaceCreated(holder: SurfaceHolder) {
             try {
-                if (camera != null){
-                    camera!!.setPreviewDisplay(holder)
-                    camera!!.startPreview()
-                }
+                camera?.setPreviewDisplay(holder)
+                camera?.startPreview()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
 
         }
 
-        override fun surfaceChanged(
-            holder: SurfaceHolder, format: Int, width: Int,
-            height: Int
-        ) {
+        override fun surfaceChanged(holder: SurfaceHolder,
+                                    format: Int,
+                                    width: Int,
+                                    height: Int) {
             restartCamera()
         }
 

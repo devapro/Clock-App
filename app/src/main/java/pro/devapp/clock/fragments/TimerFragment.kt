@@ -27,6 +27,11 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
     private var serviceIntent: Intent? = null
     private var timerService: TimerService? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        serviceIntent = Intent(context, TimerService::class.java)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = DataBindingUtil.inflate(inflater, pro.devapp.clock.R.layout.fragment_timer, container,false)
         mBinding?.lifecycleOwner = this
@@ -37,7 +42,7 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        serviceIntent = Intent(context, TimerService::class.java)
+        // if timer service is running bind service
         if (ServiceUtils.isServiceRunning(context!!, TimerService::class.java)){
             activity?.bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE)
         }
@@ -66,6 +71,9 @@ class TimerFragment: Fragment(), TimerViewModel.TimerListener {
         activity?.stopService(serviceIntent)
     }
 
+    /**
+     * Connection for timer service
+     */
     private val mConnection: ServiceConnection = object: ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName?) {

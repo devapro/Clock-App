@@ -3,4 +3,5 @@
     <string name="notification_timer_running">Timer running</string>
     <string name="notification_timer_end">Timer end!</string>
     <string name="notification_noise_detector">Noise detector running</string>
+    <string name="camera_permissions_error">Camera dsen\'t have permissions.</string>
 </resources>

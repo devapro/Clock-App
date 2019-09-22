@@ -31,7 +31,6 @@ class NoiseDetectorService : Service() {
 
     private var mRecorder: MediaRecorder? = null
     private var mEMA = 0.0
-    private var detectDelay = 500
 
     private var wakeLock: PowerManager.WakeLock? = null
     private val handler: Handler = Handler()
@@ -40,7 +39,7 @@ class NoiseDetectorService : Service() {
     private var keyguardManager: KeyguardManager? = null
 
     override fun onBind(intent: Intent?): IBinder? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return null
     }
 
     override fun onCreate() {
@@ -54,10 +53,8 @@ class NoiseDetectorService : Service() {
         try {
             mRecorder?.prepare()
         } catch (e: IllegalStateException) {
-            // TODO Auto-generated catch block
             e.printStackTrace()
         } catch (e: IOException) {
-            // TODO Auto-generated catch block
             e.printStackTrace()
         }
 
