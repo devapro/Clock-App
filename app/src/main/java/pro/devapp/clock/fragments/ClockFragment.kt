@@ -17,10 +17,10 @@ class ClockFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_clock, container,false)
-        mBinding!!.lifecycleOwner = this
-        mBinding!!.model = ViewModelProviders.of(activity!!).get(ClockViewModel::class.java)
-        mBinding!!.model!!.setChangeFragmentListener(changeListener)
-        return  mBinding!!.root
+        mBinding?.lifecycleOwner = this
+        mBinding?.model = ViewModelProviders.of(activity!!).get(ClockViewModel::class.java)
+        mBinding?.model?.setChangeFragmentListener(changeListener)
+        return  mBinding?.root
     }
 
     override fun onAttach(context: Context?) {
